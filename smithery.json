@@ -1,0 +1,77 @@
+{
+  "name": "replit-workspace",
+  "displayName": "Replit Workspace",
+  "description": "MCP server for interacting with Replit workspaces - read/write files, manage repls, and execute code without needing a browser",
+  "vendor": "Community",
+  "homepage": "https://github.com/your-username/replit-mcp-server",
+  "tags": ["replit", "workspace", "code", "files", "development"],
+  "deployment": {
+    "localOnly": false,
+    "requirements": [
+      {
+        "name": "REPLIT_TOKEN",
+        "description": "Your Replit connect.sid token for authentication. Get this from your browser cookies when logged into Replit.",
+        "required": true
+      }
+    ]
+  },
+  "examples": [
+    {
+      "name": "List your repls",
+      "description": "Get a list of all repls in your account",
+      "tool": "list_repls",
+      "input": {
+        "limit": 10
+      }
+    },
+    {
+      "name": "Read a file",
+      "description": "Read the contents of a file from a repl",
+      "tool": "read_file",
+      "input": {
+        "path": "main.py",
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "Write a file",
+      "description": "Write content to a file in a repl",
+      "tool": "write_file",
+      "input": {
+        "path": "hello.py",
+        "content": "print('Hello, World!')",
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "List files in a directory",
+      "description": "List all files and directories in a repl",
+      "tool": "list_files",
+      "input": {
+        "path": ".",
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "Run a repl",
+      "description": "Start running a repl",
+      "tool": "run_repl",
+      "input": {
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "Search files",
+      "description": "Search for content within files",
+      "tool": "search_files",
+      "input": {
+        "query": "function",
+        "replId": "your-repl-id"
+      }
+    }
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/replit-mcp-server"
+  }
+}

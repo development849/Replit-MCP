@@ -1,10 +1,10 @@
 {
   "name": "replit-workspace",
   "displayName": "Replit Workspace",
-  "description": "MCP server for interacting with Replit workspaces - read/write files, manage repls, and execute code without needing a browser",
+  "description": "Comprehensive MCP server for interacting with Replit workspaces - manage repls, files, secrets, deployments, and more without needing a browser",
   "vendor": "Community",
   "homepage": "https://github.com/your-username/replit-mcp-server",
-  "tags": ["replit", "workspace", "code", "files", "development"],
+  "tags": ["replit", "workspace", "code", "files", "development", "deployment", "secrets"],
   "deployment": {
     "localOnly": false,
     "requirements": [
@@ -17,11 +17,36 @@
   },
   "examples": [
     {
+      "name": "Get current user",
+      "description": "Get information about the authenticated user",
+      "tool": "get_current_user",
+      "input": {}
+    },
+    {
       "name": "List your repls",
       "description": "Get a list of all repls in your account",
       "tool": "list_repls",
       "input": {
         "limit": 10
+      }
+    },
+    {
+      "name": "Create a new repl",
+      "description": "Create a new Python repl",
+      "tool": "create_repl",
+      "input": {
+        "title": "My Python Project",
+        "language": "python3",
+        "description": "A new Python project",
+        "isPrivate": false
+      }
+    },
+    {
+      "name": "Fork a repl",
+      "description": "Fork an existing repl to your account",
+      "tool": "fork_repl",
+      "input": {
+        "url": "https://replit.com/@username/repl-name"
       }
     },
     {
@@ -44,11 +69,45 @@
       }
     },
     {
-      "name": "List files in a directory",
+      "name": "List files",
       "description": "List all files and directories in a repl",
       "tool": "list_files",
       "input": {
         "path": ".",
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "Get secrets",
+      "description": "List all environment variables for a repl",
+      "tool": "get_secrets",
+      "input": {
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "Set a secret",
+      "description": "Set an environment variable",
+      "tool": "set_secret",
+      "input": {
+        "key": "API_KEY",
+        "value": "your-api-key",
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "Get deployment info",
+      "description": "Get deployment status for a repl",
+      "tool": "get_deployment",
+      "input": {
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "Deploy a repl",
+      "description": "Publish/deploy a repl",
+      "tool": "create_deployment",
+      "input": {
         "replId": "your-repl-id"
       }
     },
@@ -66,6 +125,14 @@
       "tool": "search_files",
       "input": {
         "query": "function",
+        "replId": "your-repl-id"
+      }
+    },
+    {
+      "name": "Get detailed repl info",
+      "description": "Get comprehensive repl information including stats",
+      "tool": "get_repl_details",
+      "input": {
         "replId": "your-repl-id"
       }
     }

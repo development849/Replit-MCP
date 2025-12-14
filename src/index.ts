@@ -224,6 +224,192 @@ const TOOL_DEFINITIONS = [
       required: ['query'],
     },
   },
+  {
+    name: 'get_user_by_id',
+    description: 'Fetch user information by their numeric ID',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'number',
+          description: 'The numeric ID of the user',
+        },
+      },
+      required: ['id'],
+    },
+  },
+  {
+    name: 'get_user_by_username',
+    description: 'Fetch user information by their username',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        username: {
+          type: 'string',
+          description: 'The username of the user',
+        },
+      },
+      required: ['username'],
+    },
+  },
+  {
+    name: 'create_repl',
+    description: 'Create a new repl',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: {
+          type: 'string',
+          description: 'Title of the new repl',
+        },
+        language: {
+          type: 'string',
+          description: 'Programming language/template for the repl (e.g., python3, nodejs, html)',
+        },
+        description: {
+          type: 'string',
+          description: 'Optional description for the repl',
+        },
+        isPrivate: {
+          type: 'boolean',
+          description: 'Whether the repl should be private (default: false)',
+        },
+      },
+      required: ['title', 'language'],
+    },
+  },
+  {
+    name: 'fork_repl',
+    description: 'Fork an existing repl by URL',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        url: {
+          type: 'string',
+          description: 'The full URL of the repl to fork',
+        },
+      },
+      required: ['url'],
+    },
+  },
+  {
+    name: 'delete_repl',
+    description: 'Delete a repl by ID (requires confirmation)',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        id: {
+          type: 'string',
+          description: 'The ID of the repl to delete',
+        },
+        confirm: {
+          type: 'boolean',
+          description: 'Must be true to confirm deletion',
+        },
+      },
+      required: ['id', 'confirm'],
+    },
+  },
+  {
+    name: 'get_secrets',
+    description: 'List all environment variables/secrets for a repl',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        replId: {
+          type: 'string',
+          description: 'Optional repl ID (uses active repl if not specified)',
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'set_secret',
+    description: 'Set an environment variable/secret for a repl',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        key: {
+          type: 'string',
+          description: 'The name of the environment variable',
+        },
+        value: {
+          type: 'string',
+          description: 'The value of the environment variable',
+        },
+        replId: {
+          type: 'string',
+          description: 'Optional repl ID (uses active repl if not specified)',
+        },
+      },
+      required: ['key', 'value'],
+    },
+  },
+  {
+    name: 'delete_secret',
+    description: 'Delete an environment variable/secret from a repl',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        key: {
+          type: 'string',
+          description: 'The name of the environment variable to delete',
+        },
+        replId: {
+          type: 'string',
+          description: 'Optional repl ID (uses active repl if not specified)',
+        },
+      },
+      required: ['key'],
+    },
+  },
+  {
+    name: 'get_deployment',
+    description: 'Get deployment information for a repl',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        replId: {
+          type: 'string',
+          description: 'Optional repl ID (uses active repl if not specified)',
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'create_deployment',
+    description: 'Deploy/publish a repl',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        replId: {
+          type: 'string',
+          description: 'Optional repl ID (uses active repl if not specified)',
+        },
+      },
+      required: [],
+    },
+  },
+  {
+    name: 'get_repl_details',
+    description: 'Get detailed repl information including comments, multiplayers, tags, run count, like count, and fork count',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        replId: {
+          type: 'string',
+          description: 'The ID of the repl (optional if URL is provided or active repl is set)',
+        },
+        url: {
+          type: 'string',
+          description: 'The URL of the repl (optional if replId is provided or active repl is set)',
+        },
+      },
+      required: [],
+    },
+  },
 ];
 
 class ReplitMCPServer {
@@ -345,6 +531,72 @@ class ReplitMCPServer {
           case 'search_files': {
             const { query, replId } = args as { query: string; replId?: string };
             result = await client.searchFiles(query, replId);
+            break;
+          }
+
+          case 'get_user_by_id': {
+            const { id } = args as { id: number };
+            result = await client.getUserById(id);
+            break;
+          }
+
+          case 'get_user_by_username': {
+            const { username } = args as { username: string };
+            result = await client.getUserByUsername(username);
+            break;
+          }
+
+          case 'create_repl': {
+            const { title, language, description, isPrivate } = args as { title: string; language: string; description?: string; isPrivate?: boolean };
+            result = await client.createRepl({ title, language, description, isPrivate });
+            break;
+          }
+
+          case 'fork_repl': {
+            const { url } = args as { url: string };
+            result = await client.forkRepl(url);
+            break;
+          }
+
+          case 'delete_repl': {
+            const { id, confirm } = args as { id: string; confirm: boolean };
+            result = await client.deleteRepl(id, confirm);
+            break;
+          }
+
+          case 'get_secrets': {
+            const { replId } = args as { replId?: string };
+            result = await client.getSecrets(replId);
+            break;
+          }
+
+          case 'set_secret': {
+            const { key, value, replId } = args as { key: string; value: string; replId?: string };
+            result = await client.setSecret(key, value, replId);
+            break;
+          }
+
+          case 'delete_secret': {
+            const { key, replId } = args as { key: string; replId?: string };
+            result = await client.deleteSecret(key, replId);
+            break;
+          }
+
+          case 'get_deployment': {
+            const { replId } = args as { replId?: string };
+            result = await client.getDeployment(replId);
+            break;
+          }
+
+          case 'create_deployment': {
+            const { replId } = args as { replId?: string };
+            result = await client.createDeployment(replId);
+            break;
+          }
+
+          case 'get_repl_details': {
+            const { replId, url } = args as { replId?: string; url?: string };
+            result = await client.getReplDetails(replId, url);
             break;
           }
 

@@ -4,9 +4,11 @@ An MCP (Model Context Protocol) server that enables AI assistants to interact wi
 
 ## Features
 
-- **User Management**: Get information about the authenticated user
-- **Repl Management**: List repls, get repl info by URL, run and stop repls
+- **User Management**: Get current user, lookup users by ID or username
+- **Repl Management**: List, create, fork, delete, and get detailed repl information
 - **File Operations**: Read, write, create, delete files and directories
+- **Environment Variables**: Manage secrets and environment variables
+- **Deployments**: Get deployment info and publish repls
 - **Search**: Search for content within files
 
 ## Installation
@@ -53,23 +55,51 @@ Add to your Claude Desktop config file:
 }
 ```
 
-## Available Tools
+## Available Tools (24 Total)
 
+### User Operations
 | Tool | Description |
 |------|-------------|
 | `get_current_user` | Get info about the authenticated user |
+| `get_user_by_id` | Get user info by numeric ID |
+| `get_user_by_username` | Get user info by username |
+
+### Repl Management
+| Tool | Description |
+|------|-------------|
 | `list_repls` | List repls owned by the user |
 | `get_repl_by_url` | Get repl info by URL |
+| `get_repl_details` | Get detailed repl info (comments, multiplayers, tags, stats) |
 | `set_active_repl` | Set the active repl for subsequent operations |
+| `create_repl` | Create a new repl |
+| `fork_repl` | Fork an existing repl |
+| `delete_repl` | Delete a repl (requires confirmation) |
+| `run_repl` | Start a repl |
+| `stop_repl` | Stop a running repl |
+
+### File Operations
+| Tool | Description |
+|------|-------------|
 | `read_file` | Read file contents |
 | `write_file` | Write content to a file |
 | `list_files` | List files in a directory |
 | `create_file` | Create a new file |
 | `delete_file` | Delete a file |
 | `create_directory` | Create a new directory |
-| `run_repl` | Start a repl |
-| `stop_repl` | Stop a running repl |
 | `search_files` | Search for content in files |
+
+### Environment Variables
+| Tool | Description |
+|------|-------------|
+| `get_secrets` | List all environment variables for a repl |
+| `set_secret` | Set an environment variable |
+| `delete_secret` | Delete an environment variable |
+
+### Deployments
+| Tool | Description |
+|------|-------------|
+| `get_deployment` | Get deployment info for a repl |
+| `create_deployment` | Deploy/publish a repl |
 
 ## Development
 
@@ -93,6 +123,16 @@ npm start
 2. Push to GitHub
 3. Connect your repository via Smithery dashboard
 4. Deploy
+
+## API Coverage
+
+This MCP server provides comprehensive coverage of Replit's GraphQL API including:
+- User queries and lookups
+- Repl CRUD operations
+- File system operations
+- Environment variable management
+- Deployment management
+- Search functionality
 
 ## License
 

@@ -6,8 +6,7 @@ channel = "stable-24_05"
 
 [deployment]
 deploymentTarget = "vm"
-build = ["npm", "ci", "&&", "npm", "run", "build"]
-run = ["npm", "run", "start"]
+run = "npm install && npm run build && node dist/index.js"
 
 [[ports]]
 localPort = 3000

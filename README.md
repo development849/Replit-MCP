@@ -1,139 +1,58 @@
-# Replit MCP Server
+# Replit MCP Server (HTTP fork)
 
-An MCP (Model Context Protocol) server that enables AI assistants to interact with Replit workspaces directly, without needing an agentic browser or constant user intervention.
+Remote-callable MCP server that gives an LLM agent control of your Replit account: list/create/fork/delete repls, read/write files, manage secrets, run/stop and deploy.
 
-## Features
+Forked from [NOVA-3951/Replit-MCP](https://github.com/NOVA-3951/Replit-MCP) (stdio). This fork adds:
 
-- **User Management**: Get current user, lookup users by ID or username
-- **Repl Management**: List, create, fork, delete, and get detailed repl information
-- **File Operations**: Read, write, create, delete files and directories
-- **Environment Variables**: Manage secrets and environment variables
-- **Deployments**: Get deployment info and publish repls
-- **Search**: Search for content within files
+- Streamable HTTP transport (Cowork / remote agents can call it)
+- Bearer-token auth in front of `/mcp`
+- `/health` liveness endpoint
+- Module-level active-repl state that survives across stateless HTTP requests
+- Replit Reserved VM Deployment config
 
-## Installation
+## Tools
 
-### From Smithery
+24 tools across users, repls, files, secrets, and deployments. See `src/server-factory.ts` for the full list.
 
-```bash
-smithery install replit-workspace --client claude
+## Authentication model
+
+Two layers:
+
+1. **Caller → MCP server:** `Authorization: Bearer $MCP_BEARER_TOKEN` on every `/mcp` request.
+2. **MCP server → Replit:** the server holds your `connect.sid` cookie in `REPLIT_TOKEN` and uses it against `replit.com/graphql`.
+
+> **Trust note.** `connect.sid` is your full Replit session cookie — anyone who reads it owns your account until you log out everywhere. Keep `REPLIT_TOKEN` only as a Replit Secret on the deployment, never in the repo, and rotate it (log out → log back in) if you suspect exposure.
+
+## Environment variables
+
+| Name | Required | What it is |
+|---|---|---|
+| `REPLIT_TOKEN` | yes | Your Replit `connect.sid` cookie (DevTools → Application → Cookies → `replit.com`) |
+| `MCP_BEARER_TOKEN` | yes | A long random string you pick. Callers must send it as `Authorization: Bearer …` |
+| `PORT` | no | Defaults to 3000. Replit injects this automatically on Deployments |
+
+## Deploy on Replit (Reserved VM)
+
+1. Create a new Repl from this GitHub repo (`+ Create Repl` → `Import from GitHub`).
+2. In **Secrets** (lock icon), add `REPLIT_TOKEN` and `MCP_BEARER_TOKEN`.
+3. Click **Deploy** → **Reserved VM** → defaults are fine. Wait for the public URL.
+4. Smoke test:
+   ```
+   curl https://<your-deployment>.replit.app/health
+   ```
+
+## Local development
+
 ```
-
-### Manual Installation
-
-1. Clone this repository
-2. Install dependencies: `npm install`
-3. Build: `npm run build`
-4. Run: `npm start`
-
-## Configuration
-
-The server requires a `REPLIT_TOKEN` environment variable containing your Replit `connect.sid` cookie token.
-
-### Getting Your Token
-
-1. Log into Replit in your browser
-2. Open Developer Tools (F12)
-3. Go to Application > Cookies > replit.com
-4. Copy the value of `connect.sid`
-
-### Claude Desktop Configuration
-
-Add to your Claude Desktop config file:
-
-```json
-{
-  "mcpServers": {
-    "replit": {
-      "command": "node",
-      "args": ["/path/to/replit-mcp-server/dist/index.js"],
-      "env": {
-        "REPLIT_TOKEN": "your-connect-sid-token"
-      }
-    }
-  }
-}
-```
-
-## Available Tools (24 Total)
-
-### User Operations
-| Tool | Description |
-|------|-------------|
-| `get_current_user` | Get info about the authenticated user |
-| `get_user_by_id` | Get user info by numeric ID |
-| `get_user_by_username` | Get user info by username |
-
-### Repl Management
-| Tool | Description |
-|------|-------------|
-| `list_repls` | List repls owned by the user |
-| `get_repl_by_url` | Get repl info by URL |
-| `get_repl_details` | Get detailed repl info (comments, multiplayers, tags, stats) |
-| `set_active_repl` | Set the active repl for subsequent operations |
-| `create_repl` | Create a new repl |
-| `fork_repl` | Fork an existing repl |
-| `delete_repl` | Delete a repl (requires confirmation) |
-| `run_repl` | Start a repl |
-| `stop_repl` | Stop a running repl |
-
-### File Operations
-| Tool | Description |
-|------|-------------|
-| `read_file` | Read file contents |
-| `write_file` | Write content to a file |
-| `list_files` | List files in a directory |
-| `create_file` | Create a new file |
-| `delete_file` | Delete a file |
-| `create_directory` | Create a new directory |
-| `search_files` | Search for content in files |
-
-### Environment Variables
-| Tool | Description |
-|------|-------------|
-| `get_secrets` | List all environment variables for a repl |
-| `set_secret` | Set an environment variable |
-| `delete_secret` | Delete an environment variable |
-
-### Deployments
-| Tool | Description |
-|------|-------------|
-| `get_deployment` | Get deployment info for a repl |
-| `create_deployment` | Deploy/publish a repl |
-
-## Development
-
-```bash
-# Install dependencies
 npm install
-
-# Run in development mode
-npm run dev
-
-# Build
-npm run build
-
-# Start production server
-npm start
+MCP_BEARER_TOKEN=dev-token REPLIT_TOKEN=<your-cookie> npm run dev
+curl localhost:3000/health
 ```
 
-## Deployment to Smithery
+## Wiring into Cowork (Claude Code)
 
-1. Ensure you have a `Dockerfile` and `smithery.json` in your repo
-2. Push to GitHub
-3. Connect your repository via Smithery dashboard
-4. Deploy
-
-## API Coverage
-
-This MCP server provides comprehensive coverage of Replit's GraphQL API including:
-- User queries and lookups
-- Repl CRUD operations
-- File system operations
-- Environment variable management
-- Deployment management
-- Search functionality
+Cowork accepts custom remote MCP servers. Use the URL `https://<deployment>.replit.app/mcp` and add an `Authorization` header `Bearer <MCP_BEARER_TOKEN>`. After connecting, the 24 Replit tools become available to any Cowork session.
 
 ## License
 
-MIT
+MIT — same as the upstream repo's `package.json` declaration. A LICENSE file has been added to this fork.
